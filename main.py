@@ -11,8 +11,8 @@ from datetime import datetime, date, timedelta
 
 
 def clone_repositories(source_repo, target_repo):
-    source_name = source_repo.split('/')[-1].split('.')[0]
-    target_name = target_repo.split('/')[-1].split('.')[0]
+    source_name = os.path.splitext(os.path.basename(source_repo))[0]
+    target_name = os.path.splitext(os.path.basename(target_repo))[0]
 
     try:
         os.chdir('/tmp/')
