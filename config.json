@@ -1,0 +1,11 @@
+{
+  "email": "ruslan.yupyn@outlook.com",
+  "access_token": "4822e3fe4e7bbfbe119d005718d4d85d95c1e957",
+  "source_repo": "https://github.com/mbpup/multifile_joiner.git",
+  "target_repo": "https://github.com/pycoach/test-repo.git",
+  "start_date": "2015-01-01",
+  "end_date": "2017-01-01",
+  "exclude_days": [] ,
+  "max_commit": 10,
+  "everyday": false
+}
