@@ -140,6 +140,7 @@ if __name__ == "__main__":
     os.chdir("/tmp/{}".format(target_name))
     subprocess.check_output(["git", "push"]).decode('ascii')
 
+    os.chdir("/tmp/")
     remove_local_repositories(source_name, target_name)
 
     subprocess.call(["git", "config", "--global", "--unset", "user.email"])
