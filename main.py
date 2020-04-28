@@ -85,12 +85,8 @@ def scan_date_range(source_name, target_name, start_date, end_date, source_files
 
 
 def remove_local_repositories(source_name, target_name):
-    try:
-        subprocess.check_output(["rm", "-rf", "/tmp/{}".format(source_name)]).decode('ascii')
-        subprocess.check_output(["rm", "-rf", "/tmp/{}".format(target_name)]).decode('ascii')
-    except Exception as e:
-        print("already exists: {}".format(e))
-        pass
+    subprocess.call(["rm", "-rf", "/tmp/{}".format(source_name)])
+    subprocess.call(["rm", "-rf", "/tmp/{}".format(target_name)])
 
 
 if __name__ == "__main__":
@@ -112,38 +108,53 @@ if __name__ == "__main__":
 
     subprocess.call(["git", "config", "--global", "user.email", email])
 
-    # clone both source/target repositories
-    source_name, target_name = clone_repositories(source_repo, target_repo)
+    try:
+        # clone both source/target repositories
+        source_name, target_name = clone_repositories(source_repo, target_repo)
 
-    source_files = get_source_files(source_name)
+        source_files = get_source_files(source_name)
 
-    # commit repository scanning date range
-    scan_date_range(
-        source_name=source_name,
-        target_name=target_name,
-        start_date=start_date,
-        end_date=end_date,
-        source_files=source_files,
-        everyday=everyday,
-        exclude=exclude_days
-    )
+        # commit repository scanning date range
+        scan_date_range(
+            source_name=source_name,
+            target_name=target_name,
+            start_date=start_date,
+            end_date=end_date,
+            source_files=source_files,
+            everyday=everyday,
+            exclude=exclude_days
+        )
 
-    # sync os time with utc time
-    ntp_client = ntplib.NTPClient()
-    response = ntp_client.request('pool.ntp.org')
-    subprocess.call(shlex.split("timedatectl set-ntp false"))  # May be necessary
-    utc_time = datetime.strptime(ctime(response.tx_time), "%a %b %d %H:%M:%S %Y")
-    subprocess.call(shlex.split("date -s '{}'".format(utc_time)))
-    subprocess.call(shlex.split("hwclock -w"))
+        # sync os time with utc time
+        ntp_client = ntplib.NTPClient()
+        response = ntp_client.request('pool.ntp.org')
+        subprocess.call(shlex.split("timedatectl set-ntp false"))  # May be necessary
+        utc_time = datetime.strptime(ctime(response.tx_time), "%a %b %d %H:%M:%S %Y")
+        subprocess.call(shlex.split("date -s '{}'".format(utc_time)))
+        subprocess.call(shlex.split("hwclock -w"))
 
-    # final push to github
-    os.chdir("/tmp/{}".format(target_name))
-    subprocess.check_output(["git", "push"]).decode('ascii')
+        # final push to github
+        os.chdir("/tmp/{}".format(target_name))
+        subprocess.check_output(["git", "push"]).decode('ascii')
 
-    os.chdir("/tmp/")
-    remove_local_repositories(source_name, target_name)
+        os.chdir("/tmp/")
+        remove_local_repositories(source_name, target_name)
+        subprocess.call(["git", "config", "--global", "--unset", "user.email"])
+    except Exception as e:
+        print(e)
 
-    subprocess.call(["git", "config", "--global", "--unset", "user.email"])
+        subprocess.call(["git", "config", "--global", "--unset", "user.email"])
+
+        # sync os time with utc time
+        ntp_client = ntplib.NTPClient()
+        response = ntp_client.request('pool.ntp.org')
+        subprocess.call(shlex.split("timedatectl set-ntp false"))  # May be necessary
+        utc_time = datetime.strptime(ctime(response.tx_time), "%a %b %d %H:%M:%S %Y")
+        subprocess.call(shlex.split("date -s '{}'".format(utc_time)))
+        subprocess.call(shlex.split("hwclock -w"))
+
+
+
 
 
 
